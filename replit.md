@@ -78,7 +78,9 @@ The deployment configuration supports both development (with hot reload) and pro
 ## Changelog
 
 - June 16, 2025. Initial setup
+- June 16, 2025. Initialized with sample data for 4 players: Matteo Binda, Bofo, Eze, Fiurde
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Language: Italian
