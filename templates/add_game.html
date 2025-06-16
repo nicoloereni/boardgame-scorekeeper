@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Add Game - Boardgame Scorekeeper{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title mb-0">
+                    <i class="fas fa-plus me-2"></i>Add New Game Night
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="gameForm">
+                    <div class="mb-3">
+                        <label for="date" class="form-label">
+                            <i class="fas fa-calendar me-1"></i>Date
+                        </label>
+                        <input type="date" class="form-control" id="date" name="date" 
+                               value="{{ request.form.date or '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="game_name" class="form-label">
+                            <i class="fas fa-gamepad me-1"></i>Game Name
+                        </label>
+                        <input type="text" class="form-control" id="game_name" name="game_name" 
+                               value="{{ request.form.game_name or '' }}" 
+                               placeholder="e.g., Settlers of Catan" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-users me-1"></i>Players & Scores
+                        </label>
+                        <div id="playersContainer">
+                            {% for i in range(2) %}
+                                <div class="row mb-2 player-row">
+                                    <div class="col-7">
+                                        <input type="text" class="form-control" name="player_name[]" 
+                                               placeholder="Player {{ i + 1 }} name" required>
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control" name="player_score[]" 
+                                               placeholder="Score" value="0">
+                                    </div>
+                                    <div class="col-1">
+                                        {% if i >= 2 %}
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-player">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="addPlayer">
+                            <i class="fas fa-plus me-1"></i>Add Another Player
+                        </button>
+                        <small class="form-text text-muted d-block mt-1">
+                            Minimum 2 players required
+                        </small>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Save Game
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let playerCount = 2;
+    const container = document.getElementById('playersContainer');
+    const addButton = document.getElementById('addPlayer');
+
+    // Set today's date as default
+    const dateInput = document.getElementById('date');
+    if (!dateInput.value) {
+        dateInput.valueAsDate = new Date();
+    }
+
+    addButton.addEventListener('click', function() {
+        playerCount++;
+        const playerRow = document.createElement('div');
+        playerRow.className = 'row mb-2 player-row';
+        playerRow.innerHTML = `
+            <div class="col-7">
+                <input type="text" class="form-control" name="player_name[]" 
+                       placeholder="Player ${playerCount} name" required>
+            </div>
+            <div class="col-4">
+                <input type="number" class="form-control" name="player_score[]" 
+                       placeholder="Score" value="0">
+            </div>
+            <div class="col-1">
+                <button type="button" class="btn btn-outline-danger btn-sm remove-player">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(playerRow);
+        
+        // Add event listener to remove button
+        playerRow.querySelector('.remove-player').addEventListener('click', function() {
+            playerRow.remove();
+            playerCount--;
+        });
+    });
+
+    // Add event listeners to existing remove buttons
+    container.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-player')) {
+            const playerRow = e.target.closest('.player-row');
+            playerRow.remove();
+            playerCount--;
+        }
+    });
+
+    // Form validation
+    document.getElementById('gameForm').addEventListener('submit', function(e) {
+        const playerNames = document.querySelectorAll('input[name="player_name[]"]');
+        const filledNames = Array.from(playerNames).filter(input => input.value.trim());
+        
+        if (filledNames.length < 2) {
+            e.preventDefault();
+            alert('Please enter at least 2 players');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

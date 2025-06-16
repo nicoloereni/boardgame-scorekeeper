@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-trophy me-2"></i>Game Nights</h1>
+            <a href="{{ url_for('add_game') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add New Game
+            </a>
+        </div>
+
+        {% if games %}
+            <div class="row">
+                {% for game in games %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">{{ game.game_name }}</h5>
+                                <small class="text-muted">{{ game.date }}</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <strong class="text-success">
+                                        <i class="fas fa-crown me-1"></i>Winner: 
+                                        {% for player in game.players %}
+                                            {% if player.rank == 1 %}
+                                                {{ player.name }} ({{ player.score }})
+                                            {% endif %}
+                                        {% endfor %}
+                                    </strong>
+                                </div>
+                                
+                                <h6 class="mb-2">Players:</h6>
+                                <ul class="list-unstyled mb-3">
+                                    {% for player in game.players[:3] %}
+                                        <li class="d-flex justify-content-between align-items-center">
+                                            <span>
+                                                {% if player.rank == 1 %}
+                                                    <i class="fas fa-medal text-warning me-1"></i>
+                                                {% elif player.rank == 2 %}
+                                                    <i class="fas fa-medal text-secondary me-1"></i>
+                                                {% elif player.rank == 3 %}
+                                                    <i class="fas fa-medal text-info me-1"></i>
+                                                {% else %}
+                                                    <i class="fas fa-user me-1"></i>
+                                                {% endif %}
+                                                {{ player.name }}
+                                            </span>
+                                            <span class="badge bg-secondary">{{ player.score }}</span>
+                                        </li>
+                                    {% endfor %}
+                                    {% if game.players|length > 3 %}
+                                        <li class="text-muted">
+                                            <i class="fas fa-ellipsis-h me-1"></i>
+                                            +{{ game.players|length - 3 }} more players
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ url_for('game_detail', game_id=game.id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                                <small class="text-muted float-end">
+                                    {{ game.players|length }} players
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-dice-d20" style="font-size: 4rem; opacity: 0.3;"></i>
+                </div>
+                <h3 class="text-muted mb-3">No Game Nights Recorded</h3>
+                <p class="text-muted mb-4">Start tracking your board game sessions!</p>
+                <a href="{{ url_for('add_game') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Add Your First Game
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
